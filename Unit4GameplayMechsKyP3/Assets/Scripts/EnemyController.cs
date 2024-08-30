@@ -30,7 +30,7 @@ public class EnemyController : MonoBehaviour
 
     void DestroyOutOfBounds()
     {
-        if (this.transform.position.y > 7.5f)
+        if (this.transform.position.y < -7.5f)
         {
             Destroy(gameObject);
         }

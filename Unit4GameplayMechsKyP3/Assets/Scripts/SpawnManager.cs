@@ -4,16 +4,18 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    public GameObject enemyPrefab;
+    public List<GameObject> enemyPrefab;
+    public List<GameObject> powerUpPrefabs;
 
     private float spawnPos = 9.0f;
     public int enemyCount;
-    public int waveCount;
+    public int waveCount = 1;
 
     // Start is called before the first frame update
     void Start()
     {
-        SpawnEnemyWave(3);
+        SpawnEnemyWave(waveCount);
+        SpawnPowerUp();
     }
 
     // Update is called once per frame
@@ -24,12 +26,13 @@ public class SpawnManager : MonoBehaviour
 
         if (enemyCount == 0 )
         {
-            SpawnEnemyWave(3);
             waveCount++;
+            SpawnEnemyWave(waveCount);
+            SpawnPowerUp();
         }
     }
 
-    private Vector3 CreateRandomEnemySpawn()
+    private Vector3 CreateRandomSpawn()
     {
         float spawnPositionX = Random.Range(-spawnPos, spawnPos);
         float spawnPositionZ = Random.Range(-spawnPos, spawnPos);
@@ -39,11 +42,19 @@ public class SpawnManager : MonoBehaviour
         return RandomPosition;
     }
 
+    private void SpawnPowerUp()
+    {
+        int powerUpSelected = Random.Range(0, powerUpPrefabs.Count);
+
+        Instantiate(powerUpPrefabs[powerUpSelected], CreateRandomSpawn(), Quaternion.identity);
+    }
+
     void SpawnEnemyWave(int enemiesToSpawn)
     {
         for (int i = 0; i < enemiesToSpawn; i++)
         {
-            Instantiate(enemyPrefab, CreateRandomEnemySpawn(), Quaternion.identity);
+            int chooseEnemy = Random.Range(0, enemyPrefab.Count);
+            Instantiate(enemyPrefab[chooseEnemy], CreateRandomSpawn(), Quaternion.identity);
         }
     }
 }
