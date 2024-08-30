@@ -6,8 +6,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float speed;
-    private float kbPower = 1.0f;
+    public float kbPower = 10;
     public bool activePower = false;
+
+    public bool increaseKb = false;
+    public bool bigboy = false;
 
     private GameObject focalPoint;
     public GameObject powerUpIndicator;
@@ -18,7 +21,6 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        this.transform.localScale = playerSize;
         playerRb = GetComponent<Rigidbody>();
         focalPoint = GameObject.Find("FocalPoint");
     }
@@ -39,20 +41,37 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // checks if the object that triggers has the "PowerUp" tag
         if (other.gameObject.CompareTag("PowerUp"))
         {
             
-            GetBigPower();
-            activePower = true;
-            powerUpIndicator.SetActive(true);
-            Destroy(other.gameObject);
-            StartCoroutine(PowerUpCountdown());
+            if (other.gameObject == GameObject.Find("SizeUp(Clone)"))
+            {
+                GetBigPower();
+                Debug.Log("YESSSS");
+                activePower = true;
+                powerUpIndicator.SetActive(true);
+                Destroy(other.gameObject);
+                StartCoroutine(PowerUpCountdown());
+            }
+
+            if (other.gameObject == GameObject.Find("KnockbackPower(Clone)"))
+            {
+                Debug.Log("YASSSS");
+                activePower = true;
+                increaseKb = true;
+                powerUpIndicator.SetActive(true);
+                Destroy(other.gameObject);
+                StartCoroutine(PowerUpCountdown());
+            }
+
+            
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (collision.gameObject.CompareTag("Enemy") && increaseKb)
         {
             Rigidbody enemyRb = collision.gameObject.GetComponent<Rigidbody>();
             Vector3 awayFromPlayer = collision.gameObject.transform.position - transform.position;
@@ -67,8 +86,10 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(7);
         activePower = false;
         powerUpIndicator.SetActive(false);
-        transform.localScale = playerSize;
-        
+
+        bigboy = false;
+        increaseKb = false;
+
     }
 
     void RotatePowerupIndicator()
@@ -86,5 +107,6 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 getbig = new Vector3(2.5f, 2.5f, 2.5f);
         transform.localScale = getbig;
+        playerRb.mass = 2;
     }
 }
