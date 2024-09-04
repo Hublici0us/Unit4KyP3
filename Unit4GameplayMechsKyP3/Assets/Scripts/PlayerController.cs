@@ -9,10 +9,14 @@ public class PlayerController : MonoBehaviour
     public float kbPower = 10;
     public bool activePower = false;
 
-    
+    public float hangTime;
+    public float smashSpeed;
+    public float explosionForce;
+    public float explosionRadius;
+    private bool smashing = false;
+    private float floorY;
 
-    public bool increaseKb = false;
-    public bool bigboy = false;
+    public float cooldown;
 
     private GameObject focalPoint;
     public GameObject powerUpIndicator;
@@ -44,6 +48,28 @@ public class PlayerController : MonoBehaviour
 
         powerUpIndicator.transform.position = transform.position + new Vector3(0, -0.35f, 0);
         RotatePowerupIndicator();
+
+        cooldown = cooldown - Time.deltaTime;
+        if (currentPower == PowerUpType.Rockets && Input.GetKeyDown(KeyCode.F) && cooldown <= 0)
+        {
+            ProjectilePush();
+            cooldown = 0.5f;
+        }
+
+        if (currentPower == PowerUpType.SizeUp)
+        {
+            GetBigPower();
+        }
+        else
+        {
+            transform.localScale = playerSize;
+        }
+
+        if (currentPower == PowerUpType.Smash && Input.GetKeyDown(KeyCode.Space) && !smashing)
+        {
+            smashing = true;
+            StartCoroutine(SmashPower());
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -63,39 +89,7 @@ public class PlayerController : MonoBehaviour
 
             powerupCountdown = StartCoroutine(PowerUpCountdown());
 
-            /*    // checks if the object that triggers is the sizeup powerup
-                if (other.gameObject == GameObject.Find("SizeUp(Clone)"))
-                {
-                    GetBigPower();
-                    Debug.Log("YESSSS");
-                    activePower = true;
-                    powerUpIndicator.SetActive(true);
-                    Destroy(other.gameObject);
-                    StartCoroutine(BigBoyCountdown());
-                }
-
-                // checks if the powerup is knockback powerup
-                if (other.gameObject == GameObject.Find("KnockbackPower(Clone)"))
-                {
-                    Debug.Log("YASSSS");
-                    activePower = true;
-                    increaseKb = true;
-                    powerUpIndicator.SetActive(true);
-                    Destroy(other.gameObject);
-                    StartCoroutine(KBCountdown());
-                }
-
-               /* if (other.gameObject == GameObject.Find("MissilePower(Clone)"))
-                {
-                    if (other.gameObject == GameObject.Find("KnockbackPower(Clone)"))
-                    {
-                        Debug.Log("YASSSS");
-                        activePower = true;
-                        powerUpIndicator.SetActive(true);
-                        Destroy(other.gameObject);
-                        StartCoroutine(ProjectilePush());
-                    }
-                } */
+            
         }
     }
 
@@ -119,14 +113,6 @@ public class PlayerController : MonoBehaviour
         powerUpIndicator.SetActive(false);
     }
 
-    IEnumerator BigBoyCountdown()
-    {
-        yield return new WaitForSeconds(7);
-        activePower = false;
-        powerUpIndicator.SetActive(false);
-        transform.localScale = playerSize;
-
-    }
 
     void RotatePowerupIndicator()
     {
@@ -134,24 +120,54 @@ public class PlayerController : MonoBehaviour
         powerUpIndicator.transform.Rotate(Vector3.up);
     }
     
-    void KnockbackPower()
-    {
-        kbPower = 10;
-    }
 
     void GetBigPower()
     {
         Vector3 getbig = new Vector3(2.5f, 2.5f, 2.5f);
         transform.localScale = getbig;
         playerRb.mass = 2;
+        kbPower = 4;
     }
 
     void ProjectilePush()
     {
         foreach (var enemy in FindObjectsOfType<EnemyController>())
         {
-            tmpRocket = Instantiate(homingRockets, transform.position + Vector3.up, transform.rotation);
-            
+            tmpRocket = Instantiate(homingRockets, transform.position + Vector3.up, Quaternion.identity);
+            tmpRocket.GetComponent<MissileScript>().Fire(enemy.transform);
         }
+    }
+
+    IEnumerator SmashPower()
+    {
+        var enemies = FindObjectsOfType<EnemyController>();
+
+        //saves the y position of the floor
+        floorY = transform.position.y;
+
+        //calculates the amount of time we go up
+        float jumpTime = Time.time + hangTime;
+
+        while(Time.time < jumpTime)
+        {
+            //this moves the player up while keeping their x velocity.
+            playerRb.velocity = new Vector2(playerRb.velocity.x, smashSpeed);
+            yield return null;
+        }
+
+        while (transform.position.y > floorY) 
+        {
+            playerRb.velocity = new Vector2(playerRb.velocity.x, -smashSpeed * 2);
+            yield return null;
+        }
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if(enemies[i] != null )
+            {
+                enemies[i].GetComponent<Rigidbody>().AddExplosionForce(explosionForce, transform.position, explosionRadius, 0.0f, ForceMode.Impulse);
+            }
+        }
+        smashing = false;
     }
 }

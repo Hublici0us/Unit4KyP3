@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8264415530657006615}
   - component: {fileID: 8264415530658091417}
   - component: {fileID: 8482558655762179079}
+  - component: {fileID: 1939468485600655395}
   m_Layer: 0
   m_Name: KnockbackPower
   m_TagString: PowerUp
@@ -62,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9c0880e4cd8a8704e82b6940624b569a, type: 2}
+  - {fileID: 2100000, guid: 4a3aaad413eb7a04f9ad18777cf32ae6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -97,3 +98,16 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.891613, y: 1.3382554, z: 0.20007595}
   m_Center: {x: -0.0000018924475, y: 0, z: 0.000000011175871}
+--- !u!114 &1939468485600655395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8264415530660205749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84faf33db3ea18e4ebabdd9d41d8c1a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  powerUpType: 1
