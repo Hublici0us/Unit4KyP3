@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -12,10 +13,12 @@ public class SpawnManager : MonoBehaviour
     public int enemyCount;
     public int waveCount = 1;
     public int pastBossWaves = 1;
+    public bool bossWave;
 
     // Start is called before the first frame update
     void Start()
     {
+        bossWave = false;
         SpawnEnemyWave(waveCount);
         SpawnPowerUp();
     }
@@ -31,13 +34,25 @@ public class SpawnManager : MonoBehaviour
             waveCount++;
             if (waveCount == pastBossWaves * 5)
             {
+                bossWave = true;
                 SpawnBossWave();
+                pastBossWaves++;
             }
             else
             {
                 SpawnEnemyWave(waveCount);
             }
             SpawnPowerUp();
+
+            if (GameObject.FindGameObjectWithTag("Boss").gameObject != null)
+            {
+                InvokeRepeating("SpawnBossMinions", 5, 3);
+            }
+            else if (GameObject.FindGameObjectWithTag("Boss").gameObject == null) 
+            {
+                bossWave = false;
+                CancelInvoke("SpawnBossMinions");
+            }
         }
     }
 
@@ -80,7 +95,13 @@ public class SpawnManager : MonoBehaviour
 
     void SpawnBossWave()
     {
+        
         int chooseBoss = Random.Range(0, bossPrefab.Count);
         Instantiate(bossPrefab[chooseBoss], CreateRandomSpawn(), Quaternion.identity);
+    }
+
+    void SpawnBossMinions()
+    {
+        Instantiate(enemyPrefab[2], CreateRandomSpawn(), Quaternion.identity);
     }
 }

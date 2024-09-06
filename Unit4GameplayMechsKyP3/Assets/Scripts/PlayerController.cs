@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        floorY = transform.position.y;
         playerRb = GetComponent<Rigidbody>();
         focalPoint = GameObject.Find("FocalPoint");
     }
@@ -46,7 +47,7 @@ public class PlayerController : MonoBehaviour
         playerRb.AddForce(focalPoint.transform.forward * fwdInput * speed);
         playerRb.AddForce(focalPoint.transform.right * sideInput * speed);
 
-        powerUpIndicator.transform.position = transform.position + new Vector3(0, -0.35f, 0);
+        powerUpIndicator.transform.position = new Vector3(transform.position.x, floorY - 0.35f, transform.position.z);
         RotatePowerupIndicator();
 
         cooldown = cooldown - Time.deltaTime;
@@ -70,6 +71,8 @@ public class PlayerController : MonoBehaviour
             smashing = true;
             StartCoroutine(SmashPower());
         }
+
+        PlayerDestroyOutOfBounds();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -169,5 +172,14 @@ public class PlayerController : MonoBehaviour
             }
         }
         smashing = false;
+    }
+
+    void PlayerDestroyOutOfBounds()
+    {
+        if (transform.position.y < -4.5f)
+        {
+            Destroy(gameObject);
+            GameObject.Find("UIManager").GetComponent<UIManager>().GameOver();
+        }
     }
 }
